@@ -7,6 +7,7 @@ import com.ignacio.twitter.models.Tweet;
 import com.ignacio.twitter.models.User;
 import com.ignacio.twitter.repositories.TweetRepository;
 import com.ignacio.twitter.repositories.UserRepository;
+import com.ignacio.twitter.services.JwtTokenService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.List;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -37,6 +40,9 @@ class ApiE2eTest {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private JwtTokenService jwtTokenService;
+
     @BeforeEach
     void setUp() {
         tweetRepository.deleteAll();
@@ -56,15 +62,19 @@ class ApiE2eTest {
                 .getContentAsString();
 
         User created = objectMapper.readValue(response, User.class);
+        String token = createToken(created, List.of("user:write"));
 
-        mockMvc.perform(get("/users/" + created.getId()))
+        mockMvc.perform(get("/users/" + created.getId())
+                        .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.email").value("ignacio@gomez.com"));
 
-        mockMvc.perform(delete("/users/" + created.getId()))
+        mockMvc.perform(delete("/users/" + created.getId())
+                        .header("Authorization", "Bearer " + token))
                 .andExpect(status().isNoContent());
 
-        mockMvc.perform(get("/users/" + created.getId()))
+        mockMvc.perform(get("/users/" + created.getId())
+                        .header("Authorization", "Bearer " + token))
                 .andExpect(status().isNotFound());
     }
 
@@ -81,12 +91,14 @@ class ApiE2eTest {
                 .getContentAsString();
 
         User createdUser = objectMapper.readValue(userResponse, User.class);
+        String token = createToken(createdUser, List.of("tweet:write"));
 
         TweetRequest tweetRequest = new TweetRequest("hello", createdUser.getId());
 
         String tweetResponse = mockMvc.perform(post("/tweets")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(tweetRequest)))
+                        .content(objectMapper.writeValueAsString(tweetRequest))
+                        .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse()
@@ -94,14 +106,21 @@ class ApiE2eTest {
 
         Tweet createdTweet = objectMapper.readValue(tweetResponse, Tweet.class);
 
-        mockMvc.perform(get("/tweets"))
+        mockMvc.perform(get("/tweets")
+                        .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(createdTweet.getId().intValue()));
 
-        mockMvc.perform(delete("/tweets/" + createdTweet.getId()))
+        mockMvc.perform(delete("/tweets/" + createdTweet.getId())
+                        .header("Authorization", "Bearer " + token))
                 .andExpect(status().isNoContent());
 
-        mockMvc.perform(get("/tweets/" + createdTweet.getId()))
+        mockMvc.perform(get("/tweets/" + createdTweet.getId())
+                        .header("Authorization", "Bearer " + token))
                 .andExpect(status().isNotFound());
+    }
+
+    private String createToken(User user, List<String> actions) {
+        return jwtTokenService.createToken(user.getHandle(), user.getId(), actions);
     }
 }

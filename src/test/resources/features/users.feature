@@ -7,6 +7,8 @@ Feature: User management
       | Ada       | Lovelace | ada@lovelace.com | adal   | adal     | password123 |
     Then the response status should be 200
     And the response should include user handle "adal"
+    And the user "adal" has role "basic" with action "user:write"
+    And I request a token for username "adal" with password "password123"
     When I fetch the user "adal"
     Then the response status should be 200
     And the response should include user email "ada@lovelace.com"
@@ -18,6 +20,8 @@ Feature: User management
     And a user exists with:
       | firstName | lastName | email            | handle | username | password    |
       | Ada       | Lovelace | ada@lovelace.com | adal   | adal     | password123 |
+    And the user "adal" has role "basic" with action "user:write"
+    And I request a token for username "adal" with password "password123"
     When I update user "adal" with:
       | firstName | lastName | email             | handle | username | password    |
       | Ada       | Lovelace | ada2@lovelace.com | ada    | ada2     | newpassword |
@@ -66,6 +70,8 @@ Feature: User management
     And a user exists with:
       | firstName | lastName | email            | handle   | username | password    |
       | Grace     | Hopper   | grace@hopper.com | ghopper  | ghopper  | password456 |
+    And the user "adal" has role "basic" with action "user:write"
+    And I request a token for username "adal" with password "password123"
     When I update user "ghopper" with:
       | firstName | lastName | email            | handle | username | password    |
       | Grace     | Hopper   | grace@hopper.com | adal   | ghopper  | newpassword |
@@ -79,6 +85,8 @@ Feature: User management
     And a user exists with:
       | firstName | lastName | email            | handle   | username | password    |
       | Grace     | Hopper   | grace@hopper.com | ghopper  | ghopper  | password456 |
+    And the user "adal" has role "basic" with action "user:write"
+    And I request a token for username "adal" with password "password123"
     When I update user "ghopper" with:
       | firstName | lastName | email            | handle   | username | password    |
       | Grace     | Hopper   | ada@lovelace.com | ghopper  | ghopper  | newpassword |
@@ -92,6 +100,8 @@ Feature: User management
     And a user exists with:
       | firstName | lastName | email            | handle   | username | password    |
       | Grace     | Hopper   | grace@hopper.com | ghopper  | ghopper  | password456 |
+    And the user "adal" has role "basic" with action "user:write"
+    And I request a token for username "adal" with password "password123"
     When I update user "ghopper" with:
       | firstName | lastName | email            | handle   | username | password    |
       | Grace     | Hopper   | grace@hopper.com | ghopper  | adal     | newpassword |

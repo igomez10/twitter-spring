@@ -4,10 +4,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ignacio.twitter.dto.TweetRequest;
 import com.ignacio.twitter.models.Tweet;
 import com.ignacio.twitter.models.User;
+import com.ignacio.twitter.configurations.SecurityConfig;
 import com.ignacio.twitter.services.TweetService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -28,6 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(TweetController.class)
+@Import(SecurityConfig.class)
 class TweetControllerTest {
 
     @Autowired
@@ -40,6 +44,7 @@ class TweetControllerTest {
     private TweetService tweetService;
 
     @Test
+    @WithMockUser(authorities = "tweet:read")
     void listTweets_returnsTweets() throws Exception {
         User author = User.builder()
                 .id(1L)
@@ -64,6 +69,7 @@ class TweetControllerTest {
     }
 
     @Test
+    @WithMockUser(authorities = "tweet:read")
     void getTweet_returnsTweet() throws Exception {
         User author = User.builder()
                 .id(2L)
@@ -87,6 +93,7 @@ class TweetControllerTest {
     }
 
     @Test
+    @WithMockUser(authorities = "tweet:write")
     void createTweet_returnsCreatedTweet() throws Exception {
         User author = User.builder()
                 .id(3L)
@@ -113,6 +120,7 @@ class TweetControllerTest {
     }
 
     @Test
+    @WithMockUser(authorities = "tweet:write")
     void updateTweet_returnsUpdatedTweet() throws Exception {
         User author = User.builder()
                 .id(4L)
@@ -139,6 +147,7 @@ class TweetControllerTest {
     }
 
     @Test
+    @WithMockUser(authorities = "tweet:write")
     void deleteTweet_returnsNoContent() throws Exception {
         doNothing().when(tweetService).deleteTweet(eq(14L), nullable(Long.class));
 
@@ -147,6 +156,7 @@ class TweetControllerTest {
     }
 
     @Test
+    @WithMockUser(authorities = "tweet:write")
     void createTweet_validationError() throws Exception {
         TweetRequest request = new TweetRequest("", null);
 

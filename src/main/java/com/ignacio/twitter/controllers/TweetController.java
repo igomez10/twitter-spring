@@ -1,13 +1,14 @@
 package com.ignacio.twitter.controllers;
 
 import com.ignacio.twitter.dto.TweetRequest;
-import com.ignacio.twitter.middleware.AuthContext;
+import com.ignacio.twitter.auth.AuthenticatedUser;
 import com.ignacio.twitter.models.Tweet;
 import com.ignacio.twitter.services.TweetService;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,31 +28,38 @@ public class TweetController {
     private final TweetService tweetService;
 
     @GetMapping
+    @PreAuthorize("hasAuthority('tweet:read') or hasAuthority('tweet:write')")
     public List<Tweet> listTweets() {
         return tweetService.listTweets();
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('tweet:read') or hasAuthority('tweet:write')")
     public Tweet getTweet(@PathVariable Long id) {
         return tweetService.getTweet(id);
     }
 
     @PostMapping
-    public Tweet createTweet(@Valid @RequestBody TweetRequest request, HttpServletRequest httpRequest) {
-        Long actorUserId = AuthContext.getUserId(httpRequest).orElse(null);
+    @PreAuthorize("hasAuthority('tweet:write')")
+    public Tweet createTweet(@Valid @RequestBody TweetRequest request,
+                             @AuthenticationPrincipal AuthenticatedUser principal) {
+        Long actorUserId = principal != null ? principal.userId() : null;
         return tweetService.createTweet(request, actorUserId);
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('tweet:write')")
     public Tweet updateTweet(@PathVariable Long id, @Valid @RequestBody TweetRequest request,
-                             HttpServletRequest httpRequest) {
-        Long actorUserId = AuthContext.getUserId(httpRequest).orElse(null);
+                             @AuthenticationPrincipal AuthenticatedUser principal) {
+        Long actorUserId = principal != null ? principal.userId() : null;
         return tweetService.updateTweet(id, request, actorUserId);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTweet(@PathVariable Long id, HttpServletRequest httpRequest) {
-        Long actorUserId = AuthContext.getUserId(httpRequest).orElse(null);
+    @PreAuthorize("hasAuthority('tweet:write')")
+    public ResponseEntity<Void> deleteTweet(@PathVariable Long id,
+                                            @AuthenticationPrincipal AuthenticatedUser principal) {
+        Long actorUserId = principal != null ? principal.userId() : null;
         tweetService.deleteTweet(id, actorUserId);
         return ResponseEntity.noContent().build();
     }

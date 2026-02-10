@@ -5,6 +5,7 @@ import com.ignacio.twitter.dto.UserRequest;
 import com.ignacio.twitter.models.User;
 import com.ignacio.twitter.repositories.TweetRepository;
 import com.ignacio.twitter.repositories.UserRepository;
+import com.ignacio.twitter.services.JwtTokenService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -37,6 +40,9 @@ class UserControllerIntegrationTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private JwtTokenService jwtTokenService;
+
     @BeforeEach
     void setUp() {
         tweetRepository.deleteAll();
@@ -57,8 +63,10 @@ class UserControllerIntegrationTest {
                 .getContentAsString();
 
         User created = objectMapper.readValue(response, User.class);
+        String token = createToken(created, List.of("user:write"));
 
-        mockMvc.perform(get("/users/" + created.getId()))
+        mockMvc.perform(get("/users/" + created.getId())
+                        .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.email").value("ignacio@gomez.com"));
     }
@@ -71,12 +79,14 @@ class UserControllerIntegrationTest {
                 .email("old@x.com")
                 .handle("old")
                 .build());
+        String token = createToken(user, List.of("user:write"));
 
         UserRequest request = new UserRequest("New", "Name", "new@x.com", "new", "newuser", "newpassword");
 
         mockMvc.perform(put("/users/" + user.getId())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
+                        .content(objectMapper.writeValueAsString(request))
+                        .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.email").value("new@x.com"))
                 .andExpect(jsonPath("$.handle").value("new"));
@@ -90,19 +100,27 @@ class UserControllerIntegrationTest {
                 .email("ignacio@gomez.com")
                 .handle("nachogomez")
                 .build());
+        String token = createToken(user, List.of("user:write"));
 
-        mockMvc.perform(delete("/users/" + user.getId()))
+        mockMvc.perform(delete("/users/" + user.getId())
+                        .header("Authorization", "Bearer " + token))
                 .andExpect(status().isNoContent());
 
-        mockMvc.perform(get("/users"))
+        mockMvc.perform(get("/users")
+                        .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$.length()").value(0));
 
-        mockMvc.perform(get("/users/" + user.getId()))
+        mockMvc.perform(get("/users/" + user.getId())
+                        .header("Authorization", "Bearer " + token))
                 .andExpect(status().isNotFound());
 
         User stored = userRepository.findById(user.getId()).orElseThrow();
         assertThat(stored.getDeletedAt()).isNotNull();
+    }
+
+    private String createToken(User user, List<String> actions) {
+        return jwtTokenService.createToken(user.getHandle(), user.getId(), actions);
     }
 }

@@ -1,6 +1,7 @@
 package com.ignacio.twitter.services;
 
 import com.ignacio.twitter.auth.JwtKeyProvider;
+import com.ignacio.twitter.configurations.JwtProperties;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import org.junit.jupiter.api.Test;
@@ -15,7 +16,7 @@ class JwtTokenServiceTest {
     @Test
     void createToken_includesActionsAndExpiry() {
         String secret = "test-secret-test-secret-test-secret";
-        JwtTokenService service = new JwtTokenService(secret, 60);
+        JwtTokenService service = new JwtTokenService(new JwtProperties(secret, 60));
         service.init();
 
         String token = service.createToken("adal", 7L, List.of("tweet:read"));

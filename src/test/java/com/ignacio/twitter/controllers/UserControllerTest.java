@@ -3,10 +3,13 @@ package com.ignacio.twitter.controllers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ignacio.twitter.dto.UserRequest;
 import com.ignacio.twitter.models.User;
+import com.ignacio.twitter.configurations.SecurityConfig;
 import com.ignacio.twitter.services.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -26,6 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(UserController.class)
+@Import(SecurityConfig.class)
 class UserControllerTest {
 
     @Autowired
@@ -38,6 +42,7 @@ class UserControllerTest {
     private UserService userService;
 
     @Test
+    @WithMockUser(authorities = "user:read")
     void listUsers_returnsUsers() throws Exception {
         User user = User.builder()
                 .id(1L)
@@ -55,6 +60,7 @@ class UserControllerTest {
     }
 
     @Test
+    @WithMockUser(authorities = "user:read")
     void getUser_returnsUser() throws Exception {
         User user = User.builder()
                 .id(2L)
@@ -92,6 +98,7 @@ class UserControllerTest {
     }
 
     @Test
+    @WithMockUser(authorities = "user:write")
     void updateUser_returnsUpdatedUser() throws Exception {
         UserRequest request = new UserRequest("Ignacio", "Updated", "ignacio@gomez.com", "nachogomez", "nacho", "newpassword");
         User user = User.builder()
@@ -111,6 +118,7 @@ class UserControllerTest {
     }
 
     @Test
+    @WithMockUser(authorities = "user:write")
     void deleteUser_returnsNoContent() throws Exception {
         doNothing().when(userService).deleteUser(eq(5L), nullable(Long.class));
 
