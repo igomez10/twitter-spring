@@ -1,8 +1,6 @@
 package com.ignacio.twitter.models;
 
-import org.springframework.data.annotation.CreatedDate;
-
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity(name = "tweets")
@@ -10,62 +8,61 @@ public class Tweet {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long ID;
+    private Long id;
 
     @Column(length = 200, nullable = false)
-    private String Content;
+    private String content;
 
-    @OneToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
-    private User Author;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
+    private User author;
 
-    private LocalDateTime Timestamp;
+    private LocalDateTime timestamp;
 
-    @CreatedDate
-    public Long getID() {
-        return ID;
+    public Long getId() {
+        return id;
     }
 
     public String getContent() {
-        return Content;
+        return content;
     }
 
     public void setContent(String content) {
-        Content = content;
+        this.content = content;
     }
 
     public User getAuthor() {
-        return Author;
+        return author;
     }
 
     public void setAuthor(User author) {
-        Author = author;
+        this.author = author;
     }
 
     public LocalDateTime getTimestamp() {
-        return Timestamp;
+        return timestamp;
     }
 
     public void setTimestamp(LocalDateTime timestamp) {
-        Timestamp = timestamp;
+        this.timestamp = timestamp;
     }
 
-    public Tweet(Long ID, String content, User author, LocalDateTime timestamp) {
-        this.ID = ID;
-        Content = content;
-        Author = author;
-        Timestamp = timestamp;
+    public Tweet(Long id, String content, User author, LocalDateTime timestamp) {
+        this.id = id;
+        this.content = content;
+        this.author = author;
+        this.timestamp = timestamp;
     }
 
     public Tweet(String content, User author, LocalDateTime timestamp) {
-        Content = content;
-        Author = author;
-        Timestamp = timestamp;
+        this.content = content;
+        this.author = author;
+        this.timestamp = timestamp;
     }
 
     public Tweet(String content, User author) {
-        Content = content;
-        Author = author;
+        this.content = content;
+        this.author = author;
     }
 
     public Tweet() {

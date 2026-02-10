@@ -1,6 +1,6 @@
 package com.ignacio.twitter.models;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Entity(name = "users")
 public class User {
@@ -12,10 +12,10 @@ public class User {
     private String firstName;
     private String lastName;
 
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private String email;
 
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private String handle;
 
 
