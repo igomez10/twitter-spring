@@ -1,0 +1,14 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Debug TwitterApplication",
+      "request": "launch",
+      "mainClass": "com.ignacio.twitter.TwitterApplication",
+      "projectName": "twitter",
+      "cwd": "${workspaceFolder}",
+      "envFile": "${workspaceFolder}/.env"
+    }
+  ]
+}
