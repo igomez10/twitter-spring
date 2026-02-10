@@ -1,6 +1,7 @@
 package com.ignacio.twitter.services;
 
 import com.ignacio.twitter.dto.TweetRequest;
+import com.ignacio.twitter.auth.AuthenticatedUser;
 import com.ignacio.twitter.models.Event;
 import com.ignacio.twitter.models.EventType;
 import com.ignacio.twitter.models.Tweet;
@@ -10,6 +11,8 @@ import com.ignacio.twitter.repositories.TweetRepository;
 import com.ignacio.twitter.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -37,7 +40,8 @@ public class TweetServiceImpl implements TweetService {
     }
 
     @Transactional
-    public Tweet createTweet(TweetRequest request, Long actorUserId) {
+    public Tweet createTweet(TweetRequest request) {
+        Long actorUserId = resolveActorUserId();
         User author = userRepository.findByIdAndDeletedAtIsNull(request.authorId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
         Tweet tweet = Tweet.builder()
@@ -51,7 +55,8 @@ public class TweetServiceImpl implements TweetService {
     }
 
     @Transactional
-    public Tweet updateTweet(Long id, TweetRequest request, Long actorUserId) {
+    public Tweet updateTweet(Long id, TweetRequest request) {
+        Long actorUserId = resolveActorUserId();
         Tweet tweet = getTweet(id);
         User author = userRepository.findByIdAndDeletedAtIsNull(request.authorId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
@@ -63,7 +68,8 @@ public class TweetServiceImpl implements TweetService {
     }
 
     @Transactional
-    public void deleteTweet(Long id, Long actorUserId) {
+    public void deleteTweet(Long id) {
+        Long actorUserId = resolveActorUserId();
         Tweet tweet = getTweet(id);
         tweet.setDeletedAt(LocalDateTime.now());
         tweetRepository.save(tweet);
@@ -78,5 +84,17 @@ public class TweetServiceImpl implements TweetService {
                 .actorUserId(actorUserId)
                 .createdAt(LocalDateTime.now())
                 .build();
+    }
+
+    private Long resolveActorUserId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) {
+            return null;
+        }
+        Object principal = authentication.getPrincipal();
+        if (principal instanceof AuthenticatedUser authenticatedUser) {
+            return authenticatedUser.userId();
+        }
+        return null;
     }
 }

@@ -1,14 +1,12 @@
 package com.ignacio.twitter.controllers;
 
 import com.ignacio.twitter.dto.TweetRequest;
-import com.ignacio.twitter.auth.AuthenticatedUser;
 import com.ignacio.twitter.models.Tweet;
 import com.ignacio.twitter.services.TweetService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -41,26 +39,20 @@ public class TweetController {
 
     @PostMapping
     @PreAuthorize("hasAuthority('tweet:write')")
-    public Tweet createTweet(@Valid @RequestBody TweetRequest request,
-                             @AuthenticationPrincipal AuthenticatedUser principal) {
-        Long actorUserId = principal != null ? principal.userId() : null;
-        return tweetService.createTweet(request, actorUserId);
+    public Tweet createTweet(@Valid @RequestBody TweetRequest request) {
+        return tweetService.createTweet(request);
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('tweet:write')")
-    public Tweet updateTweet(@PathVariable Long id, @Valid @RequestBody TweetRequest request,
-                             @AuthenticationPrincipal AuthenticatedUser principal) {
-        Long actorUserId = principal != null ? principal.userId() : null;
-        return tweetService.updateTweet(id, request, actorUserId);
+    public Tweet updateTweet(@PathVariable Long id, @Valid @RequestBody TweetRequest request) {
+        return tweetService.updateTweet(id, request);
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('tweet:write')")
-    public ResponseEntity<Void> deleteTweet(@PathVariable Long id,
-                                            @AuthenticationPrincipal AuthenticatedUser principal) {
-        Long actorUserId = principal != null ? principal.userId() : null;
-        tweetService.deleteTweet(id, actorUserId);
+    public ResponseEntity<Void> deleteTweet(@PathVariable Long id) {
+        tweetService.deleteTweet(id);
         return ResponseEntity.noContent().build();
     }
 }

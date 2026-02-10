@@ -59,7 +59,7 @@ class OAuthControllerIntegrationTest {
                 "adal",
                 "password123"
         );
-        User user = userService.createUser(userRequest, null);
+        User user = userService.createUser(userRequest);
 
         PermittedAction action = PermittedAction.builder().action("tweet:read").build();
         Scope scope = Scope.builder().name("tweets").build();
@@ -96,7 +96,7 @@ class OAuthControllerIntegrationTest {
                 "aturing",
                 "password123"
         );
-        userService.createUser(userRequest, null);
+        userService.createUser(userRequest);
 
         TokenRequest tokenRequest = new TokenRequest("aturing", "wrongpassword");
 

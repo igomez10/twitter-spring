@@ -1,6 +1,7 @@
 package com.ignacio.twitter.services;
 
 import com.ignacio.twitter.dto.UserRequest;
+import com.ignacio.twitter.auth.AuthenticatedUser;
 import com.ignacio.twitter.models.Event;
 import com.ignacio.twitter.models.EventType;
 import com.ignacio.twitter.models.User;
@@ -10,6 +11,8 @@ import com.ignacio.twitter.repositories.UserCredentialRepository;
 import com.ignacio.twitter.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,7 +42,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Transactional
-    public User createUser(UserRequest request, Long actorUserId) {
+    public User createUser(UserRequest request) {
+        Long actorUserId = resolveActorUserId();
         validateCredentials(request);
         ensureUniqueOnCreate(request);
         User user = User.builder()
@@ -56,7 +60,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Transactional
-    public User updateUser(Long id, UserRequest request, Long actorUserId) {
+    public User updateUser(Long id, UserRequest request) {
+        Long actorUserId = resolveActorUserId();
         User user = getUser(id);
         ensureUniqueOnUpdate(user, request);
         user.setFirstName(request.firstName());
@@ -76,7 +81,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Transactional
-    public void deleteUser(Long id, Long actorUserId) {
+    public void deleteUser(Long id) {
+        Long actorUserId = resolveActorUserId();
         User user = getUser(id);
         user.setDeletedAt(LocalDateTime.now());
         repository.save(user);
@@ -142,6 +148,18 @@ public class UserServiceImpl implements UserService {
                 .actorUserId(actorUserId)
                 .createdAt(LocalDateTime.now())
                 .build();
+    }
+
+    private Long resolveActorUserId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) {
+            return null;
+        }
+        Object principal = authentication.getPrincipal();
+        if (principal instanceof AuthenticatedUser authenticatedUser) {
+            return authenticatedUser.userId();
+        }
+        return null;
     }
 
     private String extractSalt(String hash) {

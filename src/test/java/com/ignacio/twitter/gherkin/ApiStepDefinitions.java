@@ -73,7 +73,7 @@ public class ApiStepDefinitions {
     @Given("a user exists with:")
     public void aUserExistsWith(DataTable table) {
         UserRequest request = toUserRequest(table);
-        User user = userService.createUser(request, null);
+        User user = userService.createUser(request);
         state.getUserIdsByHandle().put(request.handle(), user.getId());
     }
 

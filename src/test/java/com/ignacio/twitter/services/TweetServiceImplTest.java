@@ -75,7 +75,7 @@ class TweetServiceImplTest {
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         TweetRequest request = new TweetRequest("hello", 10L);
-        Tweet created = tweetService.createTweet(request, null);
+        Tweet created = tweetService.createTweet(request);
 
         assertThat(created.getContent()).isEqualTo("hello");
         assertThat(created.getAuthor().getId()).isEqualTo(10L);
@@ -91,7 +91,7 @@ class TweetServiceImplTest {
         when(tweetRepository.save(existing)).thenReturn(existing);
 
         TweetRequest request = new TweetRequest("updated", 11L);
-        Tweet updated = tweetService.updateTweet(4L, request, null);
+        Tweet updated = tweetService.updateTweet(4L, request);
 
         assertThat(updated.getContent()).isEqualTo("updated");
         assertThat(updated.getAuthor().getId()).isEqualTo(11L);
@@ -102,7 +102,7 @@ class TweetServiceImplTest {
         Tweet existing = Tweet.builder().id(5L).content("hello").build();
         when(tweetRepository.findByIdAndDeletedAtIsNull(5L)).thenReturn(Optional.of(existing));
 
-        tweetService.deleteTweet(5L, null);
+        tweetService.deleteTweet(5L);
 
         ArgumentCaptor<Tweet> captor = ArgumentCaptor.forClass(Tweet.class);
         verify(tweetRepository).save(captor.capture());

@@ -1,14 +1,12 @@
 package com.ignacio.twitter.controllers;
 
 import com.ignacio.twitter.dto.UserRequest;
-import com.ignacio.twitter.auth.AuthenticatedUser;
 import com.ignacio.twitter.models.User;
 import com.ignacio.twitter.services.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -40,26 +38,20 @@ public class UserController {
     }
 
     @PostMapping
-    public User createUser(@Valid @RequestBody UserRequest request,
-                           @AuthenticationPrincipal AuthenticatedUser principal) {
-        Long actorUserId = principal != null ? principal.userId() : null;
-        return userService.createUser(request, actorUserId);
+    public User createUser(@Valid @RequestBody UserRequest request) {
+        return userService.createUser(request);
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('user:write')")
-    public User updateUser(@PathVariable Long id, @Valid @RequestBody UserRequest request,
-                           @AuthenticationPrincipal AuthenticatedUser principal) {
-        Long actorUserId = principal != null ? principal.userId() : null;
-        return userService.updateUser(id, request, actorUserId);
+    public User updateUser(@PathVariable Long id, @Valid @RequestBody UserRequest request) {
+        return userService.updateUser(id, request);
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('user:write')")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id,
-                                           @AuthenticationPrincipal AuthenticatedUser principal) {
-        Long actorUserId = principal != null ? principal.userId() : null;
-        userService.deleteUser(id, actorUserId);
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+        userService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
 }

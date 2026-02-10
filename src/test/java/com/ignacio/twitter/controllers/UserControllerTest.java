@@ -18,7 +18,6 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -87,7 +86,7 @@ class UserControllerTest {
                 .email("ignacio@gomez.com")
                 .handle("nachogomez")
                 .build();
-        when(userService.createUser(any(UserRequest.class), nullable(Long.class))).thenReturn(user);
+        when(userService.createUser(any(UserRequest.class))).thenReturn(user);
 
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -108,7 +107,7 @@ class UserControllerTest {
                 .email("ignacio@gomez.com")
                 .handle("nachogomez")
                 .build();
-        when(userService.updateUser(eq(4L), any(UserRequest.class), nullable(Long.class))).thenReturn(user);
+        when(userService.updateUser(eq(4L), any(UserRequest.class))).thenReturn(user);
 
         mockMvc.perform(put("/users/4")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -120,7 +119,7 @@ class UserControllerTest {
     @Test
     @WithMockUser(authorities = "user:write")
     void deleteUser_returnsNoContent() throws Exception {
-        doNothing().when(userService).deleteUser(eq(5L), nullable(Long.class));
+        doNothing().when(userService).deleteUser(eq(5L));
 
         mockMvc.perform(delete("/users/5"))
                 .andExpect(status().isNoContent());

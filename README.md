@@ -21,6 +21,7 @@ Edit `.env` as needed:
 DATABASE_URL=jdbc:postgresql://127.0.0.1:5432/postgres
 DATABASE_USERNAME=postgres
 DATABASE_PASSWORD=postgres
+JWT_SECRET=replace-with-32-char-minimum-secret
 ```
 
 2. Run the application:

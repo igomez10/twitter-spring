@@ -84,7 +84,7 @@ class UserServiceImplTest {
         when(userCredentialRepository.save(org.mockito.ArgumentMatchers.any(UserCredential.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
-        User created = userService.createUser(request, null);
+        User created = userService.createUser(request);
 
         assertThat(created.getEmail()).isEqualTo("ignacio@gomez.com");
         ArgumentCaptor<UserCredential> captor = ArgumentCaptor.forClass(UserCredential.class);
@@ -109,7 +109,7 @@ class UserServiceImplTest {
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         UserRequest request = new UserRequest("New", "Name", "new@x.com", "new", "newuser", "newpass");
-        User updated = userService.updateUser(4L, request, null);
+        User updated = userService.updateUser(4L, request);
 
         assertThat(updated.getEmail()).isEqualTo("new@x.com");
         assertThat(updated.getHandle()).isEqualTo("new");
@@ -120,7 +120,7 @@ class UserServiceImplTest {
         User existing = User.builder().id(5L).email("a@b.com").handle("ab").build();
         when(userRepository.findByIdAndDeletedAtIsNull(5L)).thenReturn(Optional.of(existing));
 
-        userService.deleteUser(5L, null);
+        userService.deleteUser(5L);
 
         ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
         verify(userRepository).save(captor.capture());
@@ -133,7 +133,7 @@ class UserServiceImplTest {
         UserRequest request = new UserRequest("Ignacio", "Gomez", "dup@x.com", "dup", "dup", "password");
         when(userRepository.findByHandle("dup")).thenReturn(Optional.of(User.builder().id(99L).handle("dup").build()));
 
-        assertThatThrownBy(() -> userService.createUser(request, null))
+        assertThatThrownBy(() -> userService.createUser(request))
                 .isInstanceOf(ResponseStatusException.class);
     }
 }
