@@ -1,16 +1,12 @@
 package com.ignacio.twitter.controllers;
 
 import com.ignacio.twitter.repositories.TweetRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@RequiredArgsConstructor
 public class TweetController {
 
-    @Autowired
-    private TweetRepository repository;
-
-    public TweetController(TweetRepository repository) {
-        this.repository = repository;
-    }
+    private final TweetRepository repository;
 }

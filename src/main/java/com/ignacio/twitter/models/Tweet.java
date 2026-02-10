@@ -1,9 +1,20 @@
 package com.ignacio.twitter.models;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import java.time.LocalDateTime;
 
 @Entity(name = "tweets")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Tweet {
 
     @Id
@@ -18,54 +29,4 @@ public class Tweet {
     private User author;
 
     private LocalDateTime timestamp;
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
-
-    public User getAuthor() {
-        return author;
-    }
-
-    public void setAuthor(User author) {
-        this.author = author;
-    }
-
-    public LocalDateTime getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(LocalDateTime timestamp) {
-        this.timestamp = timestamp;
-    }
-
-    public Tweet(Long id, String content, User author, LocalDateTime timestamp) {
-        this.id = id;
-        this.content = content;
-        this.author = author;
-        this.timestamp = timestamp;
-    }
-
-    public Tweet(String content, User author, LocalDateTime timestamp) {
-        this.content = content;
-        this.author = author;
-        this.timestamp = timestamp;
-    }
-
-    public Tweet(String content, User author) {
-        this.content = content;
-        this.author = author;
-    }
-
-    public Tweet() {
-
-    }
 }

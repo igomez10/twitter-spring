@@ -2,20 +2,16 @@ package com.ignacio.twitter.services;
 
 import com.ignacio.twitter.models.User;
 import com.ignacio.twitter.repositories.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    @Autowired
-    private UserRepository repository;
-
-    public UserServiceImpl(UserRepository repository) {
-        this.repository = repository;
-    }
+    private final UserRepository repository;
 
 
     public List<User> listUsers() {
