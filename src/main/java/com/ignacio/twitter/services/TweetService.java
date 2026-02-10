@@ -10,9 +10,9 @@ public interface TweetService {
 
     Tweet getTweet(Long id);
 
-    Tweet createTweet(TweetRequest request);
+    Tweet createTweet(TweetRequest request, Long actorUserId);
 
-    Tweet updateTweet(Long id, TweetRequest request);
+    Tweet updateTweet(Long id, TweetRequest request, Long actorUserId);
 
-    void deleteTweet(Long id);
+    void deleteTweet(Long id, Long actorUserId);
 }

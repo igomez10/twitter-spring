@@ -45,7 +45,7 @@ class UserControllerIntegrationTest {
 
     @Test
     void createAndGetUser() throws Exception {
-        UserRequest request = new UserRequest("Ignacio", "Gomez", "ignacio@gomez.com", "nachogomez");
+        UserRequest request = new UserRequest("Ignacio", "Gomez", "ignacio@gomez.com", "nachogomez", "nacho", "password123");
 
         String response = mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -72,7 +72,7 @@ class UserControllerIntegrationTest {
                 .handle("old")
                 .build());
 
-        UserRequest request = new UserRequest("New", "Name", "new@x.com", "new");
+        UserRequest request = new UserRequest("New", "Name", "new@x.com", "new", "newuser", "newpassword");
 
         mockMvc.perform(put("/users/" + user.getId())
                         .contentType(MediaType.APPLICATION_JSON)

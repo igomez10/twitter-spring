@@ -1,5 +1,6 @@
 package com.ignacio.twitter.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -8,49 +9,37 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
-@Entity(name = "users")
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@Entity(name = "scopes")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class User {
+public class Scope {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String firstName;
-    private String lastName;
-
     @Column(unique = true, nullable = false)
-    private String email;
+    private String name;
 
-    @Column(unique = true, nullable = false)
-    private String handle;
-
-    @Column(name = "deleted_at")
-    private LocalDateTime deletedAt;
-
+    @JsonIgnore
     @Builder.Default
     @ManyToMany
     @JoinTable(
-            name = "user_to_roles",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id")
+            name = "scopes_to_permitted_actions",
+            joinColumns = @JoinColumn(name = "scope_id"),
+            inverseJoinColumns = @JoinColumn(name = "permitted_action_id")
     )
-    @com.fasterxml.jackson.annotation.JsonIgnore
-    private Set<Role> roles = new HashSet<>();
+    private Set<PermittedAction> permittedActions = new HashSet<>();
 }

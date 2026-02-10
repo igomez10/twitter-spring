@@ -45,7 +45,7 @@ class ApiE2eTest {
 
     @Test
     void userLifecycle() throws Exception {
-        UserRequest createRequest = new UserRequest("Ignacio", "Gomez", "ignacio@gomez.com", "nachogomez");
+        UserRequest createRequest = new UserRequest("Ignacio", "Gomez", "ignacio@gomez.com", "nachogomez", "nacho", "password123");
 
         String response = mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -70,7 +70,7 @@ class ApiE2eTest {
 
     @Test
     void tweetLifecycle() throws Exception {
-        UserRequest userRequest = new UserRequest("Ada", "Lovelace", "ada@lovelace.com", "adal");
+        UserRequest userRequest = new UserRequest("Ada", "Lovelace", "ada@lovelace.com", "adal", "adal", "password123");
 
         String userResponse = mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON)

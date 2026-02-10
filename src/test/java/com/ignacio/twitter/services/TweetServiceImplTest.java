@@ -3,6 +3,7 @@ package com.ignacio.twitter.services;
 import com.ignacio.twitter.dto.TweetRequest;
 import com.ignacio.twitter.models.Tweet;
 import com.ignacio.twitter.models.User;
+import com.ignacio.twitter.repositories.EventRepository;
 import com.ignacio.twitter.repositories.TweetRepository;
 import com.ignacio.twitter.repositories.UserRepository;
 import org.junit.jupiter.api.Test;
@@ -30,6 +31,9 @@ class TweetServiceImplTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private EventRepository eventRepository;
 
     @InjectMocks
     private TweetServiceImpl tweetService;
@@ -71,7 +75,7 @@ class TweetServiceImplTest {
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
         TweetRequest request = new TweetRequest("hello", 10L);
-        Tweet created = tweetService.createTweet(request);
+        Tweet created = tweetService.createTweet(request, null);
 
         assertThat(created.getContent()).isEqualTo("hello");
         assertThat(created.getAuthor().getId()).isEqualTo(10L);
@@ -87,7 +91,7 @@ class TweetServiceImplTest {
         when(tweetRepository.save(existing)).thenReturn(existing);
 
         TweetRequest request = new TweetRequest("updated", 11L);
-        Tweet updated = tweetService.updateTweet(4L, request);
+        Tweet updated = tweetService.updateTweet(4L, request, null);
 
         assertThat(updated.getContent()).isEqualTo("updated");
         assertThat(updated.getAuthor().getId()).isEqualTo(11L);
@@ -98,7 +102,7 @@ class TweetServiceImplTest {
         Tweet existing = Tweet.builder().id(5L).content("hello").build();
         when(tweetRepository.findByIdAndDeletedAtIsNull(5L)).thenReturn(Optional.of(existing));
 
-        tweetService.deleteTweet(5L);
+        tweetService.deleteTweet(5L, null);
 
         ArgumentCaptor<Tweet> captor = ArgumentCaptor.forClass(Tweet.class);
         verify(tweetRepository).save(captor.capture());

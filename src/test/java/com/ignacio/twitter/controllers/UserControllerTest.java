@@ -15,6 +15,7 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -72,7 +73,7 @@ class UserControllerTest {
 
     @Test
     void createUser_returnsCreatedUser() throws Exception {
-        UserRequest request = new UserRequest("Ignacio", "Gomez", "ignacio@gomez.com", "nachogomez");
+        UserRequest request = new UserRequest("Ignacio", "Gomez", "ignacio@gomez.com", "nachogomez", "nacho", "password");
         User user = User.builder()
                 .id(3L)
                 .firstName("Ignacio")
@@ -80,7 +81,7 @@ class UserControllerTest {
                 .email("ignacio@gomez.com")
                 .handle("nachogomez")
                 .build();
-        when(userService.createUser(any(UserRequest.class))).thenReturn(user);
+        when(userService.createUser(any(UserRequest.class), nullable(Long.class))).thenReturn(user);
 
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -92,7 +93,7 @@ class UserControllerTest {
 
     @Test
     void updateUser_returnsUpdatedUser() throws Exception {
-        UserRequest request = new UserRequest("Ignacio", "Updated", "ignacio@gomez.com", "nachogomez");
+        UserRequest request = new UserRequest("Ignacio", "Updated", "ignacio@gomez.com", "nachogomez", "nacho", "newpassword");
         User user = User.builder()
                 .id(4L)
                 .firstName("Ignacio")
@@ -100,7 +101,7 @@ class UserControllerTest {
                 .email("ignacio@gomez.com")
                 .handle("nachogomez")
                 .build();
-        when(userService.updateUser(eq(4L), any(UserRequest.class))).thenReturn(user);
+        when(userService.updateUser(eq(4L), any(UserRequest.class), nullable(Long.class))).thenReturn(user);
 
         mockMvc.perform(put("/users/4")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -111,7 +112,7 @@ class UserControllerTest {
 
     @Test
     void deleteUser_returnsNoContent() throws Exception {
-        doNothing().when(userService).deleteUser(5L);
+        doNothing().when(userService).deleteUser(eq(5L), nullable(Long.class));
 
         mockMvc.perform(delete("/users/5"))
                 .andExpect(status().isNoContent());
@@ -119,7 +120,7 @@ class UserControllerTest {
 
     @Test
     void createUser_validationError() throws Exception {
-        UserRequest request = new UserRequest("Ignacio", "Gomez", "", "");
+        UserRequest request = new UserRequest("Ignacio", "Gomez", "", "", "", "");
 
         mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON)

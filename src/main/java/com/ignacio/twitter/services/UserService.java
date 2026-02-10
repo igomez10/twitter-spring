@@ -10,9 +10,9 @@ public interface UserService {
 
     User getUser(Long id);
 
-    User createUser(UserRequest request);
+    User createUser(UserRequest request, Long actorUserId);
 
-    User updateUser(Long id, UserRequest request);
+    User updateUser(Long id, UserRequest request, Long actorUserId);
 
-    void deleteUser(Long id);
+    void deleteUser(Long id, Long actorUserId);
 }

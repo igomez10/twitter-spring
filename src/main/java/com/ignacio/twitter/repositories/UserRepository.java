@@ -43,6 +43,32 @@ public class UserRepository {
         return Optional.ofNullable(entityManager.find(User.class, id));
     }
 
+    @Transactional(readOnly = true)
+    public Optional<User> findByHandle(String handle) {
+        List<User> results = entityManager.createQuery(
+                        "select u from users u where u.handle = :handle",
+                        User.class)
+                .setParameter("handle", handle)
+                .getResultList();
+        if (results.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(results.get(0));
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<User> findByEmail(String email) {
+        List<User> results = entityManager.createQuery(
+                        "select u from users u where u.email = :email",
+                        User.class)
+                .setParameter("email", email)
+                .getResultList();
+        if (results.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(results.get(0));
+    }
+
     @Transactional
     public User save(User user) {
         if (user.getId() == null) {
@@ -57,6 +83,8 @@ public class UserRepository {
 
     @Transactional
     public void deleteAll() {
+        entityManager.createNativeQuery("delete from user_to_roles").executeUpdate();
+        entityManager.createNativeQuery("delete from user_credentials").executeUpdate();
         entityManager.createQuery("delete from users").executeUpdate();
     }
 }

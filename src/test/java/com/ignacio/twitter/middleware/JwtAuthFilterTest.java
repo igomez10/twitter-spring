@@ -2,53 +2,60 @@ package com.ignacio.twitter.middleware;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import com.ignacio.twitter.auth.AuthenticatedUser;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 
 class JwtAuthFilterTest {
 
     private static final String SECRET = "test-secret-test-secret-test-secret";
 
     private JwtAuthFilter filter;
-    private FilterChain filterChain;
 
     @BeforeEach
     void setUp() {
         filter = new JwtAuthFilter(SECRET);
-        filterChain = mock(FilterChain.class);
+        SecurityContextHolder.clearContext();
     }
 
     @Test
     void skipsWhenAuthorizationHeaderMissing() throws ServletException, IOException {
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
+        AtomicReference<Authentication> capturedAuth = new AtomicReference<>();
+        FilterChain filterChain = (req, res) -> capturedAuth.set(SecurityContextHolder.getContext().getAuthentication());
 
         filter.doFilter(request, response, filterChain);
 
-        assertThat(request.getAttribute(JwtAuthFilter.USER_ID_ATTRIBUTE)).isNull();
-        verify(filterChain).doFilter(request, response);
+        assertThat(capturedAuth.get()).isNull();
+        assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
     }
 
     @Test
     void setsUserIdWhenTokenIsValid() throws ServletException, IOException {
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
+        AtomicReference<Authentication> capturedAuth = new AtomicReference<>();
+        FilterChain filterChain = (req, res) -> capturedAuth.set(SecurityContextHolder.getContext().getAuthentication());
 
         String token = Jwts.builder()
-                .subject("42")
+                .subject("adal")
+                .claim("userId", 42L)
+                .claim("actions", java.util.List.of("tweet:read", "tweet:write"))
                 .issuedAt(new Date())
                 .signWith(Keys.hmacShaKeyFor(SECRET.getBytes(StandardCharsets.UTF_8)))
                 .compact();
@@ -57,14 +64,24 @@ class JwtAuthFilterTest {
 
         filter.doFilter(request, response, filterChain);
 
-        assertThat(request.getAttribute(JwtAuthFilter.USER_ID_ATTRIBUTE)).isEqualTo(42L);
-        verify(filterChain).doFilter(request, response);
+        Authentication authentication = capturedAuth.get();
+        assertThat(authentication).isNotNull();
+        assertThat(authentication.getPrincipal()).isInstanceOf(AuthenticatedUser.class);
+        AuthenticatedUser principal = (AuthenticatedUser) authentication.getPrincipal();
+        assertThat(principal.userId()).isEqualTo(42L);
+        assertThat(principal.actions()).containsExactly("tweet:read", "tweet:write");
+        assertThat(authentication.getAuthorities())
+                .extracting("authority")
+                .containsExactlyInAnyOrder("tweet:read", "tweet:write");
+        assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
     }
 
     @Test
-    void ignoresNonNumericSubject() throws ServletException, IOException {
+    void ignoresTokenWithoutUserIdClaim() throws ServletException, IOException {
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
+        AtomicReference<Authentication> capturedAuth = new AtomicReference<>();
+        FilterChain filterChain = (req, res) -> capturedAuth.set(SecurityContextHolder.getContext().getAuthentication());
 
         String token = Jwts.builder()
                 .subject("not-a-number")
@@ -76,19 +93,21 @@ class JwtAuthFilterTest {
 
         filter.doFilter(request, response, filterChain);
 
-        assertThat(request.getAttribute(JwtAuthFilter.USER_ID_ATTRIBUTE)).isNull();
+        assertThat(capturedAuth.get()).isNull();
     }
 
     @Test
     void ignoresInvalidToken() throws ServletException, IOException {
         MockHttpServletRequest request = new MockHttpServletRequest();
         MockHttpServletResponse response = new MockHttpServletResponse();
+        AtomicReference<Authentication> capturedAuth = new AtomicReference<>();
+        FilterChain filterChain = (req, res) -> capturedAuth.set(SecurityContextHolder.getContext().getAuthentication());
 
         request.addHeader(JwtAuthFilter.AUTHORIZATION_HEADER, "Bearer invalid.token.here");
 
         filter.doFilter(request, response, filterChain);
 
-        assertThat(request.getAttribute(JwtAuthFilter.USER_ID_ATTRIBUTE)).isNull();
+        assertThat(capturedAuth.get()).isNull();
     }
 
     @Test

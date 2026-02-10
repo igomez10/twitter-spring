@@ -17,6 +17,7 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -101,7 +102,7 @@ class TweetControllerTest {
                 .author(author)
                 .timestamp(LocalDateTime.now())
                 .build();
-        when(tweetService.createTweet(any(TweetRequest.class))).thenReturn(tweet);
+        when(tweetService.createTweet(any(TweetRequest.class), nullable(Long.class))).thenReturn(tweet);
 
         mockMvc.perform(post("/tweets")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -127,7 +128,7 @@ class TweetControllerTest {
                 .author(author)
                 .timestamp(LocalDateTime.now())
                 .build();
-        when(tweetService.updateTweet(eq(13L), any(TweetRequest.class))).thenReturn(tweet);
+        when(tweetService.updateTweet(eq(13L), any(TweetRequest.class), nullable(Long.class))).thenReturn(tweet);
 
         mockMvc.perform(put("/tweets/13")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -139,7 +140,7 @@ class TweetControllerTest {
 
     @Test
     void deleteTweet_returnsNoContent() throws Exception {
-        doNothing().when(tweetService).deleteTweet(14L);
+        doNothing().when(tweetService).deleteTweet(eq(14L), nullable(Long.class));
 
         mockMvc.perform(delete("/tweets/14"))
                 .andExpect(status().isNoContent());
