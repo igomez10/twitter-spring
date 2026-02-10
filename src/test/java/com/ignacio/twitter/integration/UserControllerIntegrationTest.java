@@ -3,6 +3,7 @@ package com.ignacio.twitter.integration;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ignacio.twitter.dto.UserRequest;
 import com.ignacio.twitter.models.User;
+import com.ignacio.twitter.repositories.TweetRepository;
 import com.ignacio.twitter.repositories.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,10 +32,14 @@ class UserControllerIntegrationTest {
     private UserRepository userRepository;
 
     @Autowired
+    private TweetRepository tweetRepository;
+
+    @Autowired
     private ObjectMapper objectMapper;
 
     @BeforeEach
     void setUp() {
+        tweetRepository.deleteAll();
         userRepository.deleteAll();
     }
 
