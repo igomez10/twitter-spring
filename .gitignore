@@ -31,3 +31,29 @@ build/
 !**/src/test/**/build/
 
 ### VS Code ###
+.vscode/
+
+### Terraform ###
+terraform/
+terraform.tfvars
+terraform.tfvars.json
+*.tfvars
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+*.tfplan
+
+### Docker ###
+.dockerignore
+Dockerfile.lambda
+
+### AWS ###
+.aws/
+
+### Deployment Scripts ###
+scripts/*.log
+
+### Environment Variables ###
+.env.local
+.env.*.local
