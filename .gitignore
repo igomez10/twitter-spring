@@ -57,3 +57,10 @@ scripts/*.log
 ### Environment Variables ###
 .env.local
 .env.*.local
+
+### Frontend ###
+ui/node_modules/
+ui/dist/
+ui/playwright-report/
+ui/test-results/
+.DS_Store

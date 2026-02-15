@@ -4,6 +4,7 @@ import com.ignacio.twitter.dto.UserRequest;
 import com.ignacio.twitter.models.User;
 import com.ignacio.twitter.models.UserCredential;
 import com.ignacio.twitter.repositories.EventRepository;
+import com.ignacio.twitter.repositories.RoleRepository;
 import com.ignacio.twitter.repositories.UserCredentialRepository;
 import com.ignacio.twitter.repositories.UserRepository;
 import org.junit.jupiter.api.Test;
@@ -32,6 +33,9 @@ class UserServiceImplTest {
 
     @Mock
     private UserCredentialRepository userCredentialRepository;
+
+    @Mock
+    private RoleRepository roleRepository;
 
     @Mock
     private PasswordEncoder passwordEncoder;
@@ -78,6 +82,7 @@ class UserServiceImplTest {
         when(userRepository.findByHandle("nachogomez")).thenReturn(Optional.empty());
         when(userRepository.findByEmail("ignacio@gomez.com")).thenReturn(Optional.empty());
         when(userCredentialRepository.findByUsername("nacho")).thenReturn(Optional.empty());
+        when(roleRepository.findByName("basic")).thenReturn(Optional.empty());
         when(userRepository.save(org.mockito.ArgumentMatchers.any(User.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
         when(passwordEncoder.encode("password")).thenReturn(hashed);

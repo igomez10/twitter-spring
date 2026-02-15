@@ -18,7 +18,19 @@
 		<lombok.version>1.18.36</lombok.version>
 		<springdoc.version>2.7.0</springdoc.version>
 		<cucumber.version>7.15.0</cucumber.version>
+		<aws.sdk.version>2.25.64</aws.sdk.version>
 	</properties>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>software.amazon.awssdk</groupId>
+				<artifactId>bom</artifactId>
+				<version>${aws.sdk.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

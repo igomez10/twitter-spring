@@ -7,6 +7,7 @@ import com.ignacio.twitter.models.EventType;
 import com.ignacio.twitter.models.User;
 import com.ignacio.twitter.models.UserCredential;
 import com.ignacio.twitter.repositories.EventRepository;
+import com.ignacio.twitter.repositories.RoleRepository;
 import com.ignacio.twitter.repositories.UserCredentialRepository;
 import com.ignacio.twitter.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +30,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository repository;
     private final UserCredentialRepository userCredentialRepository;
+    private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final EventRepository eventRepository;
 
@@ -55,6 +57,7 @@ public class UserServiceImpl implements UserService {
         User created = repository.save(user);
         UserCredential credential = buildCredential(created, request.username(), request.password());
         userCredentialRepository.save(credential);
+        assignDefaultRole(created);
         eventRepository.save(buildEvent(EventType.USER_CREATED, created.getId(), actorUserId));
         return created;
     }
@@ -167,5 +170,9 @@ public class UserServiceImpl implements UserService {
             return "";
         }
         return hash.length() >= 29 ? hash.substring(0, 29) : hash;
+    }
+
+    private void assignDefaultRole(User user) {
+        roleRepository.findByName("basic").ifPresent(role -> user.getRoles().add(role));
     }
 }
